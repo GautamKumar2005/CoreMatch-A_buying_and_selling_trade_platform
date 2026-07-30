@@ -40,7 +40,7 @@ RUN npm run build
 
 
 # ── Stage 3: Prepare Node.js backend ────────────────────────
-FROM node:20-alpine AS backend-builder
+FROM node:20-slim AS backend-builder
 WORKDIR /app/backend
 
 COPY backend/package.json backend/package-lock.json* ./
@@ -49,10 +49,7 @@ RUN npm ci --only=production
 COPY backend/ ./
 
 # ── Stage 4: Final runtime image ─────────────────────────────
-FROM node:20-alpine AS runtime
-
-# Install libstdc++ for C++ binary
-RUN apk add --no-cache libstdc++ libgcc
+FROM node:20-slim AS runtime
 
 WORKDIR /app/backend
 

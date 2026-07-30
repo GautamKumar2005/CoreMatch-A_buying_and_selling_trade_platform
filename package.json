@@ -1,0 +1,9 @@
+{
+  "name": "quant-workspace",
+  "version": "1.0.0",
+  "description": "Root workspace to start frontend and backend concurrently",
+  "scripts": {
+    "dev": "npx -y concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+  }
+}

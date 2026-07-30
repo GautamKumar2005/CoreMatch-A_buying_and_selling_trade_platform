@@ -1,0 +1,13 @@
+{
+  "name": "exchange-backend",
+  "version": "1.0.0",
+  "dependencies": [
+    "crow",
+    "nlohmann-json",
+    "mongo-cxx-driver",
+    "jwt-cpp",
+    "openssl",
+    "boost-asio",
+    "gtest"
+  ]
+}

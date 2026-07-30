@@ -1,0 +1,26 @@
+# ── Environment files (NEVER commit these) ──
+.env
+.env.local
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ── Node ──
+node_modules/
+npm-debug.log*
+
+# ── Next.js ──
+.next/
+out/
+
+# ── C++ build artifacts ──
+*.exe
+*.obj
+*.o
+build/
+*.pdb
+
+# ── OS ──
+.DS_Store
+Thumbs.db

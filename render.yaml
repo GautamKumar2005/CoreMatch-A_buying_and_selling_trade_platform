@@ -1,0 +1,47 @@
+# render.yaml — Render.com deployment configuration
+# Deploy both backend (Node.js) and frontend (Next.js) from one repo
+
+services:
+  # ── Backend: Node.js + C++ Matching Engine ─────────────────────────────────
+  - type: web
+    name: corematach-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000           # Render assigns this automatically too
+      - key: MONGODB_URI
+        sync: false            # Set manually in Render dashboard (secret)
+      - key: JWT_SECRET
+        sync: false            # Set manually in Render dashboard (secret)
+      - key: DB_NAME
+        value: CoreMatch
+      - key: JWT_EXPIRY
+        value: "86400"
+      - key: START_SIMULATOR
+        value: "true"
+      - key: SIMULATOR_BOTS
+        value: "5"
+      # Render sets RENDER_EXTERNAL_URL automatically — used by keep-alive
+    plan: free
+
+  # ── Frontend: Next.js Static Site ──────────────────────────────────────────
+  - type: web
+    name: corematach-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://corematach-backend.onrender.com
+      - key: NEXT_PUBLIC_WS_URL
+        value: wss://corematach-backend.onrender.com/ws
+    plan: free

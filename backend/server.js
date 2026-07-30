@@ -643,7 +643,9 @@ let latestMetrics = {
 let benchmarkPromiseResolver = null;
 
 function startEngineSubprocess() {
-    const binaryPath = path.join(__dirname, 'matching_engine.exe');
+    // Use .exe on Windows, bare binary on Linux/Mac (Docker/Render)
+    const binaryName = process.platform === 'win32' ? 'matching_engine.exe' : 'matching_engine';
+    const binaryPath = path.join(__dirname, binaryName);
     console.log(`Spawning C++ matching engine CLI at: ${binaryPath}`);
     engineProcess = spawn(binaryPath, [], { stdio: ['pipe', 'pipe', 'inherit'] });
 

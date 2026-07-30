@@ -12,11 +12,13 @@ WORKDIR /cpp
 COPY backend/src/ ./src/
 
 RUN g++ -std=c++20 -O3 -I./src \
+    -static-libstdc++ -static-libgcc \
     -o matching_engine \
     src/main_cli.cpp \
     src/engine/order_book.cpp \
     src/engine/matching_engine.cpp \
     && strip matching_engine
+
 
 
 # ── Stage 2: Build Next.js frontend (static export) ─────────

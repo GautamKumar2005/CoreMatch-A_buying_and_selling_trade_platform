@@ -7,18 +7,28 @@ services:
     name: corematach-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm install
+    # 1) Install Node deps
+    # 2) Compile the C++ matching engine for Linux (g++ is available on Render Ubuntu env)
+    buildCommand: |
+      npm install
+      g++ -std=c++20 -O3 -I./src \
+        -o matching_engine \
+        src/main_cli.cpp \
+        src/engine/order_book.cpp \
+        src/engine/matching_engine.cpp
+      chmod +x matching_engine
+      echo "C++ engine compiled: $(./matching_engine --version 2>/dev/null || echo 'ok')"
     startCommand: node server.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000           # Render assigns this automatically too
+        value: 10000
       - key: MONGODB_URI
-        sync: false            # Set manually in Render dashboard (secret)
+        sync: false
       - key: JWT_SECRET
-        sync: false            # Set manually in Render dashboard (secret)
+        sync: false
       - key: DB_NAME
         value: CoreMatch
       - key: JWT_EXPIRY
@@ -27,7 +37,6 @@ services:
         value: "true"
       - key: SIMULATOR_BOTS
         value: "5"
-      # Render sets RENDER_EXTERNAL_URL automatically — used by keep-alive
     plan: free
 
   # ── Frontend: Next.js Static Site ──────────────────────────────────────────
@@ -45,3 +54,4 @@ services:
       - key: NEXT_PUBLIC_WS_URL
         value: wss://corematach-backend.onrender.com/ws
     plan: free
+

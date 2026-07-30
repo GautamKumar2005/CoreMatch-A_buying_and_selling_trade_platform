@@ -21,6 +21,13 @@ RUN g++ -std=c++20 -O3 -o matching_engine \
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
+# Accept backend URL as a build argument (optional — frontend calls API directly)
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_WS_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 
@@ -28,6 +35,7 @@ COPY frontend/ ./
 
 # Build Next.js — output static files for export
 RUN npm run build
+
 
 # ── Stage 3: Prepare Node.js backend ────────────────────────
 FROM node:20-alpine AS backend-builder

@@ -5,13 +5,21 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
+import { MarketTicker } from "@/components/market/MarketTicker";
 import { OrderBook } from "@/components/trading/OrderBook";
 import { TradesFeed } from "@/components/trading/TradesFeed";
 import { OrderForm } from "@/components/trading/OrderForm";
 import { CandlestickChart } from "@/components/trading/CandlestickChart";
 import { useTradingStore } from "@/store/tradingStore";
 import { useChannel } from "@/lib/websocket";
+
+// Required for Next.js static export — pre-generates a page for every symbol
+const SYMBOLS = ["AAPL","GOOGL","MSFT","AMZN","TSLA","NVDA","META","NFLX",
+                 "RELIANCE","TCS","INFY","HDFC","BTC","ETH"];
+
+export function generateStaticParams() {
+  return SYMBOLS.map((symbol) => ({ symbol }));
+}
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1h", "1d"];
 

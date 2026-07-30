@@ -56,27 +56,21 @@ RUN apk add --no-cache libstdc++ libgcc
 
 WORKDIR /app/backend
 
-# Copy Node.js backend + node_modules
+# Copy Node.js backend + production node_modules
 COPY --from=backend-builder /app/backend ./
 
-# Copy compiled C++ engine (Linux binary, not .exe)
+# Copy compiled C++ engine (Linux binary)
 COPY --from=cpp-builder /cpp/matching_engine ./matching_engine
 RUN chmod +x ./matching_engine
 
-# Copy built Next.js static files into backend/public
-#   so Express can serve them via express.static()
-COPY --from=frontend-builder /app/frontend/.next/static ./.next/static
-COPY --from=frontend-builder /app/frontend/.next/standalone ./
-COPY --from=frontend-builder /app/frontend/public ./public 2>/dev/null || true
-
-# Patch: if Next.js export is used instead of standalone,
-# copy 'out' into backend/public for Express static serving
-# (this handles the static export mode)
-COPY --from=frontend-builder /app/frontend/out ./public 2>/dev/null || true
+# Copy built Next.js static export (out/) into backend/public
+# Express serves this via express.static('public')
+COPY --from=frontend-builder /app/frontend/out ./public
 
 ENV PORT=8080
 ENV NODE_ENV=production
 EXPOSE 8080
 
-# Start the Node.js server
+# Start the Node.js + Express server (also serves the static frontend)
 CMD ["node", "server.js"]
+

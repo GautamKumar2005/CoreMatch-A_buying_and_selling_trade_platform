@@ -27,16 +27,33 @@ app.get('/health', (req, res) => {
 
 
 // Serve exported frontend static files (if present) from backend/public
+// Next.js static export (output: 'export') places files in out/ → copied to public/
 const fs = require('fs');
 const staticPath = path.join(__dirname, 'public');
 if (fs.existsSync(staticPath)) {
-    app.use(express.static(staticPath));
-    // Fallback to index.html for client-side routing (only for GET requests)
+    // Serve static assets (JS, CSS, images, etc.)
+    app.use(express.static(staticPath, { extensions: ['html'] }));
+
+    // SPA fallback: for any non-API GET request, try serving
+    // a matching .html file, then fall back to index.html
     app.get('*', (req, res, next) => {
-        if (req.method !== 'GET') return next();
-        res.sendFile(path.join(staticPath, 'index.html'));
+        if (req.path.startsWith('/api/') || req.path.startsWith('/ws')) {
+            return next();
+        }
+        // Try exact .html match first (e.g. /dashboard → dashboard.html)
+        const htmlFile = path.join(staticPath, req.path + '.html');
+        if (fs.existsSync(htmlFile)) {
+            return res.sendFile(htmlFile);
+        }
+        // Fall back to index.html
+        const indexFile = path.join(staticPath, 'index.html');
+        if (fs.existsSync(indexFile)) {
+            return res.sendFile(indexFile);
+        }
+        next();
     });
 }
+
 
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || "CoreMatch_JWT_Secret_ChangeInProduction_2024";

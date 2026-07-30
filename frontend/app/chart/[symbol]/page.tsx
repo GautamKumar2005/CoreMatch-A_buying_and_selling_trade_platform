@@ -13,10 +13,11 @@ export function generateStaticParams() {
   return SYMBOLS.map((symbol) => ({ symbol }));
 }
 
-export default function ChartPage({
+export default async function ChartPage({
   params,
 }: {
-  params: { symbol: string };
+  params: Promise<{ symbol: string }>;
 }) {
-  return <ChartClient symbol={params.symbol} />;
+  const { symbol } = await params;
+  return <ChartClient symbol={symbol} />;
 }

@@ -33,10 +33,26 @@ class ExchangeWebSocket {
     )
       return;
 
-    this.ws = new WebSocket(WS_URL);
+    // Resolve URL dynamically at connection time (so it adapts to current hostname if not hardcoded)
+    let finalUrl = process.env.NEXT_PUBLIC_WS_URL;
+    if (!finalUrl && typeof window !== "undefined") {
+      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      // Check if we are running frontend on a port like 3000 but backend is on 8080 (dev environment)
+      // Otherwise, use same host
+      const host = window.location.host;
+      if (host.includes("localhost:3000")) {
+        finalUrl = "ws://localhost:8080/ws";
+      } else {
+        finalUrl = `${proto}//${host}/ws`;
+      }
+    }
+    finalUrl = finalUrl || "ws://localhost:8080/ws";
+
+    console.log("[WS] Connecting to:", finalUrl);
+    this.ws = new WebSocket(finalUrl);
 
     this.ws.onopen = () => {
-      console.log("[WS] Connected to CoreMatch");
+      console.log("[WS] Connected successfully");
       this.reconnectDelay = 1000;
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("ws-status", { detail: true }));

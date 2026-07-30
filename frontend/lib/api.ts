@@ -7,14 +7,20 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT token from localStorage
+// Attach JWT token from localStorage and automatically rewrite localhost URL to current domain if deployed
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
+    // If baseURL is localhost but browser is on a deployed domain (like Render), rewrite it dynamically
+    if (config.baseURL?.includes("localhost:8080") && !window.location.host.includes("localhost:8080")) {
+      config.baseURL = window.location.origin;
+    }
+
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
 
 // Response error handling
 api.interceptors.response.use(

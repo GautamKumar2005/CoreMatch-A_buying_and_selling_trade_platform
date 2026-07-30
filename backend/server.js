@@ -140,7 +140,6 @@ const marketSnapshotSchema = new mongoose.Schema({
     updatedAt: Number
 }, { versionKey: false });
 
-const fs = require('fs');
 
 class MockModel {
     constructor(name) {

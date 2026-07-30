@@ -7,15 +7,17 @@
 FROM gcc:13 AS cpp-builder
 WORKDIR /cpp
 
-# Copy only the files needed to compile the CLI engine
-COPY backend/src/main_cli.cpp ./src/
-COPY backend/src/engine/ ./src/engine/
+# Copy the ENTIRE src tree — order_book.hpp needs ../models/order.hpp
+# and other headers from sibling directories
+COPY backend/src/ ./src/
 
-RUN g++ -std=c++20 -O3 -o matching_engine \
+RUN g++ -std=c++20 -O3 -I./src \
+    -o matching_engine \
     src/main_cli.cpp \
     src/engine/order_book.cpp \
     src/engine/matching_engine.cpp \
     && strip matching_engine
+
 
 # ── Stage 2: Build Next.js frontend (static export) ─────────
 FROM node:20-alpine AS frontend-builder
